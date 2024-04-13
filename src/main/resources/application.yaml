@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: products-ms
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9094 #good to provide at least 2
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+server:
+  port: 0 #randomly select port on runtime, good for up same app several time
+logging:
+  level:
+    root: info
