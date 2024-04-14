@@ -7,7 +7,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 server:
-  port: 0 #randomly select port on runtime, good for up same app several time
+  port: 8080 #randomly select port on runtime, good for up same app several time
 logging:
   level:
     root: info

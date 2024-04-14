@@ -7,16 +7,18 @@ import org.springframework.kafka.config.TopicBuilder;
 
 import java.util.Map;
 
+import static az.learningkafka.ms.productsmicroservice.shared.Constants.PRODUCT_CREATED_TOPIC;
+
 @Configuration
 public class KafkaConfig {
 
     @Bean
-    public NewTopic createTopic(){
+    public NewTopic createTopic() {
         return TopicBuilder
-                .name("product-create-events-topic")
+                .name(PRODUCT_CREATED_TOPIC)
                 .partitions(3)
                 .replicas(3)
-                .configs(Map.of("min.insync.replicas","2"))
+                .configs(Map.of("min.insync.replicas", "2"))
                 .build();
     }
 }
