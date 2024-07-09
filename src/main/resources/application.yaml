@@ -2,10 +2,25 @@ spring:
   application:
     name: products-ms
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9094 #good to provide at least 2
     producer:
+      bootstrap-servers: localhost:9092,localhost:9094 #good to provide at least 2
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      #      retries: 10
+      properties:
+        request:
+          timeout:
+            ms: 30000
+        delivery:
+          timeout:
+            ms: 100000
+        linger:
+          ms: 0
+
+#        retry:
+#          backoff:
+#            ms: 1000
 server:
   port: 8080 #randomly select port on runtime, good for up same app several time
 logging:
