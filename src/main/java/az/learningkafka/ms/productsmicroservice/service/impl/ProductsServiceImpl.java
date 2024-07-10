@@ -1,8 +1,8 @@
 package az.learningkafka.ms.productsmicroservice.service.impl;
 
+import az.kafka.kafkaeventslibrary.ProductCreatedEvent;
 import az.learningkafka.ms.productsmicroservice.dto.ProductDto;
 import az.learningkafka.ms.productsmicroservice.exception.KafkaSendException;
-import az.learningkafka.ms.productsmicroservice.service.ProductCreatedEvent;
 import az.learningkafka.ms.productsmicroservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
