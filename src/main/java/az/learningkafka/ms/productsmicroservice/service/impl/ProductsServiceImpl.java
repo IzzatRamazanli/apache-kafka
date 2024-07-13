@@ -7,6 +7,7 @@ import az.learningkafka.ms.productsmicroservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +37,9 @@ public class ProductsServiceImpl implements ProductService {
     public String createProductSync(ProductDto productDto) {
         String productId = UUID.randomUUID().toString();
         ProductCreatedEvent newProductCreatedEvent = createNewProductCreatedEvent(productDto, productId);
+        ProducerRecord<String, ProductCreatedEvent> producerRecord = getProducerRecord(productId, newProductCreatedEvent);
         try {
-            var sendResult = kafkaTemplate.send(PRODUCT_CREATED_TOPIC, productId, newProductCreatedEvent).get();
+            var sendResult = kafkaTemplate.send(producerRecord).get();
             log.info("Topic : {}", sendResult.getRecordMetadata().topic());
             log.info("Partition : {}", sendResult.getRecordMetadata().partition());
             log.info("Offset : {}", sendResult.getRecordMetadata().offset());
@@ -47,6 +49,13 @@ public class ProductsServiceImpl implements ProductService {
             throw new KafkaSendException(e.getMessage());
         }
         return productId;
+    }
+
+    private static ProducerRecord<String, ProductCreatedEvent> getProducerRecord(String productId, ProductCreatedEvent newProductCreatedEvent) {
+        ProducerRecord<String, ProductCreatedEvent> producerRecord =
+                new ProducerRecord<>(PRODUCT_CREATED_TOPIC, productId, newProductCreatedEvent);
+        producerRecord.headers().add("messageId", UUID.randomUUID().toString().getBytes());
+        return producerRecord;
     }
 
     private ProductCreatedEvent createNewProductCreatedEvent(ProductDto productDto, String productId) {
