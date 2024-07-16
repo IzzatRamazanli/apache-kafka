@@ -1,7 +1,8 @@
 package az.learningkafka.ms.productsmicroservice.service.impl;
 
-import az.kafka.kafkaeventslibrary.ProductCreatedEvent;
+
 import az.learningkafka.ms.productsmicroservice.dto.ProductDto;
+import az.learningkafka.ms.productsmicroservice.events.ProductCreatedEvent;
 import az.learningkafka.ms.productsmicroservice.exception.KafkaSendException;
 import az.learningkafka.ms.productsmicroservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,7 +24,7 @@ import static az.learningkafka.ms.productsmicroservice.shared.Constants.PRODUCT_
 @RequiredArgsConstructor
 @Slf4j
 public class ProductsServiceImpl implements ProductService {
-    private final KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public String createProductAsync(ProductDto productDto) {
@@ -37,7 +41,7 @@ public class ProductsServiceImpl implements ProductService {
     public String createProductSync(ProductDto productDto) {
         String productId = UUID.randomUUID().toString();
         ProductCreatedEvent newProductCreatedEvent = createNewProductCreatedEvent(productDto, productId);
-        ProducerRecord<String, ProductCreatedEvent> producerRecord = getProducerRecord(productId, newProductCreatedEvent);
+        ProducerRecord<String, Object> producerRecord = getProducerRecord(productId, newProductCreatedEvent);
         try {
             var sendResult = kafkaTemplate.send(producerRecord).get();
             log.info("Topic : {}", sendResult.getRecordMetadata().topic());
@@ -51,8 +55,8 @@ public class ProductsServiceImpl implements ProductService {
         return productId;
     }
 
-    private static ProducerRecord<String, ProductCreatedEvent> getProducerRecord(String productId, ProductCreatedEvent newProductCreatedEvent) {
-        ProducerRecord<String, ProductCreatedEvent> producerRecord =
+    private static ProducerRecord<String, Object> getProducerRecord(String productId, ProductCreatedEvent newProductCreatedEvent) {
+        ProducerRecord<String, Object> producerRecord =
                 new ProducerRecord<>(PRODUCT_CREATED_TOPIC, productId, newProductCreatedEvent);
         producerRecord.headers().add("messageId", UUID.randomUUID().toString().getBytes());
         return producerRecord;
